@@ -38,3 +38,21 @@ func (s *authService) AuthToken(Token, username string) error {
 	}
 	return nil
 }
+
+func (s *authService) Google(name, email string) error {
+	Exist := s.repo.UserExisting(name)
+	if Exist {
+		err := s.repo.LoginAuth(name)
+		if err != nil {
+			fmt.Println("erreur login ")
+			return err
+		}
+		return nil
+	}
+	err := s.repo.RegisterAuth(name, email)
+	if err != nil {
+		fmt.Println("erreur register")
+		return err
+	}
+	return nil
+}

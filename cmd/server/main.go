@@ -49,11 +49,19 @@ func main() {
 	addr := os.Getenv("SERVER_PORT")
 	GithubClientID := os.Getenv("GITHUB_CLIENT_ID")
 	GithubClientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
+	GoogleClientID := os.Getenv("GOOGLE_CLIENT_ID")
+	// const servingSchema = "http://"
+	// const servingAddress = "localhost:8080"
+	// const callbackPath = "/google/callback"
+
 	if addr == "" {
 		addr = ":8086" // valeur par défaut en dev, sinon c'est une variable définie dans .env
 	}
 	if len(GithubClientID) == 0 || len(GithubClientSecret) == 0 {
 		log.Fatal("Set GITHUB_CLIENT_* env vars")
+	}
+	if len(GoogleClientID) == 0 {
+		log.Fatal("Set GOOGLE_CLIENT_ID env var")
 	}
 	log.Printf("Server start → http://localhost%s\n", addr)
 	err := http.ListenAndServe(addr, router)

@@ -16,4 +16,5 @@ type AuthRepository interface {
 type AuthService interface {
 	GitHub(username, email string) error
 	AuthToken(Token, username string) error
+	Google(name, email string) error
 }

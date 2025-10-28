@@ -75,7 +75,7 @@ body {
   z-index: 1000;
 }
 
-.popup-content {
+/*.popup-content {
   background: white;
   padding: 30px;
   border-radius: 8px;
@@ -83,6 +83,19 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative;
+}*/
+
+.popup-content {
+  background: white;
+  /* Augmenter le padding pour plus d'espace autour du contenu */
+  padding: 40px; /* Anciennement 30px */
+  border-radius: 8px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  /* Augmenter le gap entre les éléments pour les séparer */
+  gap: 15px; /* Anciennement 10px */
   position: relative;
 }
 
@@ -393,4 +406,64 @@ h2 {
   margin: 40px auto;
   font-style: italic;
   color: #666;
+}
+/**********************************************************************/
+/*MARK: GITHUB BUTTON (Ajusté pour la même taille que le bouton de soumission)
+/**********************************************************************/
+
+.github-btn {
+    /* Styles de base */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; 
+    
+    /* Couleurs de la marque GitHub */
+    background-color: #24292e; 
+    color: white !important; 
+    
+    /* Harmonisation du padding pour la taille */
+    padding: 10px 15px; /* Le 10px vertical correspond au 10px du bouton de soumission */
+    
+    width: 100%;
+    margin-top: 5px; 
+    margin-bottom: 5px; 
+    
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+    /* Assurez un line-height compatible avec les boutons par défaut */
+    line-height: 1.2; 
+}
+
+.github-btn:hover {
+    background-color: #000000; 
+    color: white;
+}
+
+/* Style de l'icône SVG GitHub */
+.github-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    /* Ajoutez ceci pour assurer un alignement parfait au milieu */
+    flex-shrink: 0;
+}
+
+/* Assurez-vous que le texte n'est pas étiré ou déformé */
+.github-btn span {
+    line-height: 1.2; /* Assure que le texte utilise le même line-height que le bouton "Se connecter" */
+}
+
+/* Ordre dans la modale (tel que suggéré précédemment) */
+.popup-content a.github-btn {
+    order: 3; 
+}
+
+.popup-content button[type="submit"] {
+    order: 4; 
 }

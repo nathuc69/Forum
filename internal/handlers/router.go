@@ -24,10 +24,12 @@ func Router(userService domain.UserService, topicPostService domain.TopicPostSer
 	mux.Handle("/react", middleware.Handle(http.HandlerFunc(ReactHandler)))
 	mux.Handle("/remove-reaction", middleware.Handle(http.HandlerFunc(RemoveReactionHandler)))
 	mux.Handle("/filter", middleware.Handle(http.HandlerFunc(FilterTopicByUser)))
-	//mux.HandleFunc("/filter", FilterTopicByUser)
 
 	mux.HandleFunc("/api/login-gh/", githubLoginHandler)
 	mux.HandleFunc("/api/github/callback/", githubCallbackHandler)
+
+	mux.HandleFunc("/api/login-google/", GoogleLoginHandler)
+	mux.HandleFunc("/api/google/callback/", GoogleCallbackHandler)
 
 	fs := http.FileServer(http.Dir("internal/templates/assets"))
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
