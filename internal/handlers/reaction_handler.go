@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"forum/internal/domain"
 	"net/http"
 	"strconv"
 )
@@ -10,17 +11,10 @@ import (
  */
 func ReactHandler(w http.ResponseWriter, r *http.Request) {
 	/*userID := r.Context().Value("userID").(int64)*/
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		/* http.Error(w, "❌ unauthenticated user", http.StatusUnauthorized) */
-		w.WriteHeader(http.StatusNoContent) 
-		return
-	}
-	// Vérifie l’utilisateur à partir du token
-	user, err := userService.Home(cookie.Value)
-	if err != nil || user == nil {
-		/* http.Error(w, "❌ invalid session", http.StatusUnauthorized) */
-		w.WriteHeader(http.StatusNoContent) // ERROR 204, it's for the servor, to advise it it's normal nothing come back.
+
+	user, ok := r.Context().Value("user").(*domain.User)
+	if !ok || user == nil {
+		http.Error(w, "❌ unauthenticated user", http.StatusUnauthorized)
 		return
 	}
 
@@ -40,15 +34,10 @@ func ReactHandler(w http.ResponseWriter, r *http.Request) {
  */
 func RemoveReactionHandler(w http.ResponseWriter, r *http.Request) {
 	/*userID := r.Context().Value("userID").(int64)*/
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		/* http.Error(w, "❌ unauthenticated user", http.StatusUnauthorized) */
-		w.WriteHeader(http.StatusNoContent) 
-		return
-	}
-	user, err := userService.Home(cookie.Value)
-	if err != nil || user == nil {
-		http.Error(w, "❌ invalid session", http.StatusUnauthorized)
+
+	user, ok := r.Context().Value("user").(*domain.User)
+	if !ok || user == nil {
+		http.Error(w, "❌ unauthenticated user", http.StatusUnauthorized)
 		return
 	}
 

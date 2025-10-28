@@ -19,7 +19,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cookie, err := r.Cookie("session_token")
-	if err == nil {
+	if err == nil && cookie.Value != "" {
 		err := userService.Logout(cookie.Value)
 		if err != nil {
 			fmt.Println(err)
@@ -30,6 +30,20 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 			Value:   "",
 			Expires: time.Now().Add(-1 * time.Hour),
 		})
+	} else if err != nil || cookie == nil {
+		cookieState, errState := r.Cookie("state")
+		if errState == nil && cookieState.Value != "" {
+			err := userService.Logout(cookieState.Value)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			/*http.SetCookie(w, &http.Cookie{
+				Name:    "state",
+				Value:   "",
+				Expires: time.Now().Add(-1 * time.Hour),
+			})*/
+		}
 	} else {
 		fmt.Println(err)
 	}

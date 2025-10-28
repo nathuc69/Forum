@@ -2,26 +2,30 @@ package handlers
 
 import (
 	"forum/internal/domain"
+	"forum/internal/middleware"
 	"net/http"
 )
 
-func Router(userService domain.UserService, topicPostService domain.TopicPostService, categoryService domain.CategoryService, reactionService domain.ReactionService, filterService domain.FilterService, authService domain.AuthService) http.Handler {
-	InitHandlers(userService, topicPostService, categoryService, reactionService, filterService, authService)
+func Router(userService domain.UserService, topicPostService domain.TopicPostService, categoryService domain.CategoryService, reactionService domain.ReactionService, filterService domain.FilterService, authService domain.AuthService, middleware middleware.AuthMiddleware) http.Handler {
+
+	InitHandlers(userService, topicPostService, categoryService, reactionService, filterService, authService, middleware)
 
 	mux := http.NewServeMux()
 
 	// Routes:
-	mux.HandleFunc("/", HomeHandler)
-	mux.HandleFunc("/thread", ThreadHandler)
+	mux.Handle("/", middleware.Handle(http.HandlerFunc(HomeHandler)))
+	mux.Handle("/thread", middleware.Handle(http.HandlerFunc(ThreadHandler)))
 	mux.HandleFunc("/login", AuthenticateHandler)
 	mux.HandleFunc("/logout", LogoutHandler)
 	mux.HandleFunc("/register", RegisterHandler)
-	mux.HandleFunc("/create-topic", CreateTopicHandler)
+	mux.Handle("/create-topic", middleware.Handle(http.HandlerFunc(CreateTopicHandler)))
 	mux.HandleFunc("/topic", TopicHandler)
-	mux.HandleFunc("/add-post", AddPostHandler)
-	mux.HandleFunc("/react", ReactHandler)
-	mux.HandleFunc("/remove-reaction", RemoveReactionHandler)
-	mux.HandleFunc("/filter", FilterTopicByUser)
+	mux.Handle("/add-post", middleware.Handle(http.HandlerFunc(AddPostHandler)))
+	mux.Handle("/react", middleware.Handle(http.HandlerFunc(ReactHandler)))
+	mux.Handle("/remove-reaction", middleware.Handle(http.HandlerFunc(RemoveReactionHandler)))
+	mux.Handle("/filter", middleware.Handle(http.HandlerFunc(FilterTopicByUser)))
+	//mux.HandleFunc("/filter", FilterTopicByUser)
+
 	mux.HandleFunc("/api/login-gh/", githubLoginHandler)
 	mux.HandleFunc("/api/github/callback/", githubCallbackHandler)
 

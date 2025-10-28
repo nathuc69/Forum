@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"forum/internal/domain"
 	"log"
 	"net/http"
@@ -18,6 +17,13 @@ type Datas struct {
 /*var tpl = template.Must(template.ParseFiles("internal/templates/home.html"))*/
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := false
+	user, ok := r.Context().Value("user").(*domain.User)
+	if !ok || user == nil {
+		isLoggedIn = false
+	} else {
+		isLoggedIn = true
+	}
 
 	if r.URL.Path != "/" {
 		http.Error(w, "❌ not found", http.StatusNotFound)
@@ -46,29 +52,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("❌ error fetching categories:", err)
 		http.Error(w, "❌ error fetching categories", http.StatusInternalServerError)
 		return
-	}
-	cookieState, err := r.Cookie("state")
-	if err != nil {
-		fmt.Println(err)
-	}
-	var isLoggedIn bool
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		fmt.Println(err)
-	}
-	if err == nil && cookie != nil {
-		// Vérifie si le token correspond à un utilisateur connecté
-		user, _ := userService.Home(cookie.Value)
-		if user != nil {
-			isLoggedIn = true
-		}
-	} else if err != nil && cookieState != nil {
-		user, _ := userService.Home(cookieState.Value)
-		if user != nil {
-			isLoggedIn = true
-		}
-	} else {
-		isLoggedIn = false
 	}
 
 	datas := Datas{

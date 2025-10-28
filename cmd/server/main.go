@@ -3,6 +3,7 @@ package main
 import (
 	"forum/internal/config"
 	"forum/internal/handlers"
+	"forum/internal/middleware"
 	"forum/internal/repositories"
 	"forum/internal/services"
 	"log"
@@ -14,9 +15,6 @@ import (
 )
 
 func main() {
-	/*pw := "motdepasse"
-	hash, _ := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
-	fmt.Println(string(hash))*/
 
 	//1- Charger le fichier .env
 	errEnv := godotenv.Load()
@@ -42,10 +40,10 @@ func main() {
 	reactionService := services.NewReactionService(reactionRepository)
 	filterService := services.NewFilterService(filterRepository)
 	authService := services.NewAuthService(authRepository)
-
+	middleware := middleware.NewAuthMiddleware(userService)
 	//4- Récup des Routes HTTP:
 	//   handlers → front
-	router := handlers.Router(userService, topicPostService, categoryService, reactionService, filterService, authService)
+	router := handlers.Router(userService, topicPostService, categoryService, reactionService, filterService, authService, *middleware)
 
 	//5- Lancement serveur:
 	addr := os.Getenv("SERVER_PORT")

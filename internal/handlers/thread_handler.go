@@ -15,24 +15,32 @@ type ThreadData struct {
 }
 
 func ThreadHandler(w http.ResponseWriter, r *http.Request) {
-    idStr := r.URL.Query().Get("id")
-    if idStr == "" {
-        http.Error(w, "❌ missing ID", http.StatusBadRequest)
-        return
-    }
+	isLoggedIn := false
+	user, ok := r.Context().Value("user").(*domain.User)
+	if !ok || user == nil {
+		isLoggedIn = false
+	} else {
+		isLoggedIn = true
+	}
 
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        http.Error(w, "❌ invalid ID", http.StatusBadRequest)
-        return
-    }
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "❌ missing ID", http.StatusBadRequest)
+		return
+	}
 
-    // Récupération du thread (topic + posts)
-    thread, err := topicPostService.GetThreadByID(id)
-    if err != nil {
-        http.Error(w, "❌ topic not found", http.StatusNotFound)
-        return
-    }
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "❌ invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	// Récupération du thread (topic + posts)
+	thread, err := topicPostService.GetThreadByID(id)
+	if err != nil {
+		http.Error(w, "❌ topic not found", http.StatusNotFound)
+		return
+	}
 
 	thread.Categories, err = categoryService.GetCategoriesByTopicID(id)
 	if err != nil {
@@ -52,16 +60,6 @@ func ThreadHandler(w http.ResponseWriter, r *http.Request) {
 		thread.Posts[i].Dislikes = pdislikes
 	}
 
-	cookie, err := r.Cookie("session_token")
-	var isLoggedIn bool
-
-	if err == nil {
-		// Vérifie si le token correspond à un utilisateur connecté
-		user, _ := userService.Home(cookie.Value)
-		if user != nil {
-			isLoggedIn = true
-		}
-	}
 	thread.IsLoggedIn = isLoggedIn
 	// Rendu du template thread.html
 	tmpl := template.Must(template.ParseFiles("internal/templates/thread.html"))
