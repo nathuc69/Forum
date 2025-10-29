@@ -25,7 +25,7 @@ func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := &http.Cookie{
-		Name:     "state",
+		Name:     "state-Github",
 		Value:    state.String(),
 		Path:     "/",
 		MaxAge:   int(time.Hour.Seconds()),
@@ -49,11 +49,14 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	//
 	// Start by checking the state returned by GitHub matches what
 	// we've stored in the cookie.
-	state, err := r.Cookie("state")
+	state, err := r.Cookie("state-Github")
 	if err != nil {
-		http.Error(w, "state not found", http.StatusBadRequest)
+		// Si pas de cookie state, renvoyer vers la page de login
+		http.Redirect(w, r, "/api/login-gh/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// Vérifier que le state dans l'URL correspond au cookie
 	if r.URL.Query().Get("state") != state.Value {
 		http.Error(w, "state did not match", http.StatusBadRequest)
 		return
@@ -113,12 +116,12 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := r.Cookie("state")
+	cookie, err := r.Cookie("state-Github")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	err = authService.AuthToken(cookie.Value, user.Login)
+	err = authService.AuthToken(cookie.Value, user.Login, user.Email)
 	if err != nil {
 		fmt.Println(err)
 		return

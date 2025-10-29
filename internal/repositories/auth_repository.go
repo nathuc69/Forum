@@ -14,17 +14,20 @@ func NewAuthRepository(db *sql.DB) domain.AuthRepository {
 	return &authRepository{db: db}
 }
 
-func (r *authRepository) UserExisting(username string) bool {
+func (r *authRepository) UserExisting(username, email string) bool {
 	var id int
 	err := r.db.QueryRow(`
 		SELECT id
 		FROM users 
 		WHERE username = ?`, username).Scan(&id)
-
-	if err == sql.ErrNoRows {
-		// Aucun utilisateur trouvé
+	err2 := r.db.QueryRow(`
+		SELECT id
+		FROM users 
+		WHERE email = ?`, email).Scan(&id)
+	if err == sql.ErrNoRows && err2 == sql.ErrNoRows {
 		return false
-	} else if err != nil {
+		// Aucun utilisateur trouvé
+	} else if err != nil && err2 != nil {
 		// Erreur réelle (connexion, SQL, etc.)
 		fmt.Println("Erreur SQL:", err)
 		return false
@@ -72,7 +75,21 @@ func (r *authRepository) LoginAuth(username string) error {
 	return nil
 }
 
+func (r *authRepository) LoginAuthByEmail(email string) error {
+	row := r.db.QueryRow("SELECT id, email FROM users WHERE email = ?", email)
+	user := &domain.User{}
+	err := row.Scan(&user.ID, &user.Username)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *authRepository) LoginAuthByUsername(Token, username string) error {
 	_, err := r.db.Exec("UPDATE users SET token = ? WHERE username = ? ;", Token, username)
+	return err
+}
+func (r *authRepository) TokenByEmail(Token, email string) error {
+	_, err := r.db.Exec("UPDATE users SET token = ? WHERE email = ? ;", Token, email)
 	return err
 }

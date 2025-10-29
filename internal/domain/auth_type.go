@@ -9,12 +9,14 @@ type GitHubUser struct {
 type AuthRepository interface {
 	LoginAuth(username string) error
 	RegisterAuth(username, email string) error
-	UserExisting(username string) bool
+	UserExisting(username, email string) bool
 	LoginAuthByUsername(Token, username string) error
+	LoginAuthByEmail(email string) error
+	TokenByEmail(Token, email string) error
 }
 
 type AuthService interface {
 	GitHub(username, email string) error
-	AuthToken(Token, username string) error
+	AuthToken(Token, username, email string) error
 	Google(name, email string) error
 }

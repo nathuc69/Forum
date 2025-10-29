@@ -28,6 +28,7 @@ func (s *userService) Register(username, email, password string) error {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		fmt.Println("err ici ")
 		return err
 	}
 

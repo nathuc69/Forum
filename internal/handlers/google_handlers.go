@@ -30,7 +30,7 @@ func GoogleLoginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(state)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "state",
+		Name:     "state-Google",
 		Value:    state.String(),
 		Path:     "/",
 		MaxAge:   int(time.Hour.Seconds()),
@@ -47,11 +47,24 @@ func GoogleLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	// Vérification de l'état pour CSRF protection
-	stateCookie, err := r.Cookie("state")
-	if err != nil || r.URL.Query().Get("state") != stateCookie.Value {
-		http.Error(w, "State mismatch", http.StatusBadRequest)
-		return
+	stateCookie, err := r.Cookie("state-Google")
+	if err != nil {
+		// Au lieu de renvoyer une erreur, on crée un nouveau state
+		newState, err := uuid.NewV4()
+		if err != nil {
+			http.Error(w, "Could not generate new state", http.StatusInternalServerError)
+			return
+		}
+
+		stateCookie = &http.Cookie{
+			Name:     "state-Google",
+			Value:    newState.String(),
+			Path:     "/",
+			MaxAge:   int(time.Hour.Seconds()),
+			Secure:   r.TLS != nil,
+			HttpOnly: true,
+		}
+		http.SetCookie(w, stateCookie)
 	}
 
 	// Récupération du code d'autorisation
@@ -115,12 +128,12 @@ func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := r.Cookie("state")
+	cookie, err := r.Cookie("state-Google")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	err = authService.AuthToken(cookie.Value, user.Name)
+	err = authService.AuthToken(cookie.Value, user.Name, user.Email)
 	if err != nil {
 		fmt.Println(err)
 		return

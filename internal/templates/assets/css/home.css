@@ -67,70 +67,114 @@ body {
 .popup {
   display: none;
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  inset: 0; /* top:0; left:0; right:0; bottom:0; */
   background: rgba(0,0,0,0.5);
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  /* léger flou derrière (optionnel, moderne) */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-/*.popup-content {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
-}*/
-
+/* Contenu centré, responsive et visuellement amélioré */
 .popup-content {
-  background: white;
-  /* Augmenter le padding pour plus d'espace autour du contenu */
-  padding: 40px; /* Anciennement 30px */
-  border-radius: 8px;
-  width: 320px;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  /* Augmenter le gap entre les éléments pour les séparer */
-  gap: 15px; /* Anciennement 10px */
+  gap: 14px;
   position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: popupFadeIn 220ms ease-out;
 }
 
+/* animation d'apparition */
+@keyframes popupFadeIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.popup-content h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
+  color: #222;
+}
+
+/* champs et boutons */
 .popup-content input {
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
   width: 100%;
+  box-sizing: border-box;
+  font-size: 15px;
+  min-height: 44px; /* garantit la même hauteur que les boutons */
 }
 
-.popup-content button {
+.popup-content button[type="submit"] {
   background-color: #007BFF;
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 15px;
 }
 
-.popup-content button:hover {
+/* Uniformise tous les boutons/anchors dans la popup */
+.popup-content .btn,
+.popup-content a.github-btn,
+.popup-content a.google-btn,
+.popup-content button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  min-height: 44px;
+  border-radius: 8px;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.popup-content button[type="submit"]:hover {
   background-color: #0056b3;
 }
 
+/* bouton fermer */
 .close {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
+  top: 12px;
+  right: 14px;
+  font-size: 22px;
   cursor: pointer;
+  color: #666;
 }
 
+/* Faire apparaître le popup quand la checkbox est cochée
+   Le !important garantit que le display override marche même si d'autres règles interfèrent */
 #login-popup:checked ~ .popup,
 #register-popup:checked ~ .popup {
-  display: flex;
+  display: flex !important;
+}
+
+/* ciblage de l'erreur (garde le style existant mais plus propre) */
+.popup-content p[style*="color:red"] {
+  background-color: #fff2f2;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 0;
+  font-size: 14px;
 }
 
 /**********************************************************************/
@@ -417,46 +461,37 @@ h2 {
     align-items: center;
     justify-content: center;
     gap: 10px; 
-    
-    /* Couleurs de la marque GitHub */
     background-color: #24292e; 
     color: white !important; 
-    
-    /* Harmonisation du padding pour la taille */
-    padding: 10px 15px; /* Le 10px vertical correspond au 10px du bouton de soumission */
-    
+    padding: 10px 15px;
     width: 100%;
     margin-top: 5px; 
     margin-bottom: 5px; 
-    
     border: none;
     border-radius: 5px;
     font-weight: bold;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease, transform 0.08s ease;
     font-size: 16px;
-    /* Assurez un line-height compatible avec les boutons par défaut */
     line-height: 1.2; 
 }
 
 .github-btn:hover {
-    background-color: #000000; 
+    background-color: #16181a; 
     color: white;
 }
 
 /* Style de l'icône SVG GitHub */
 .github-icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     fill: currentColor;
-    /* Ajoutez ceci pour assurer un alignement parfait au milieu */
     flex-shrink: 0;
 }
 
-/* Assurez-vous que le texte n'est pas étiré ou déformé */
 .github-btn span {
-    line-height: 1.2; /* Assure que le texte utilise le même line-height que le bouton "Se connecter" */
+    line-height: 1.2;
 }
 
 /* Ordre dans la modale (tel que suggéré précédemment) */
@@ -466,4 +501,59 @@ h2 {
 
 .popup-content button[type="submit"] {
     order: 4; 
+}
+
+/* Google Button — fond clair pour que le logo Google reste lisible */
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; 
+    background-color: #ffffff;      /* fond blanc pour contraste avec le logo */
+    color: #202124 !important;     /* texte sombre */
+    padding: 10px 15px;
+    width: 100%;
+    margin-top: 5px; 
+    margin-bottom: 5px; 
+    border: 1px solid #dfe1e5;     /* légère bordure grise */
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.12s ease, box-shadow 0.12s ease, transform 0.08s ease;
+    font-size: 16px;
+    line-height: 1.2;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+}
+
+.google-btn:hover {
+    background-color: #f7f8f9;      /* léger gris au survol */
+    box-shadow: 0 2px 6px rgba(60,64,67,0.08);
+    color: #202124 !important;
+}
+
+/* Style de l'icône Google — s'assure qu'elle soit bien visible et centrée */
+.google-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+/* Forcer une taille plus visible pour le SVG/IMG Google (override des attributs inline) */
+.google-btn svg,
+.google-btn img.google-icon {
+  width: 22px !important;
+  height: 22px !important;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Assurer un bon espacement texte / icône dans les boutons oauth */
+.popup-content a.github-btn span,
+.popup-content a.google-btn span {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  margin-left: 10px;
 }

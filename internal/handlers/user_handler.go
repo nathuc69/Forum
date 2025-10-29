@@ -14,39 +14,54 @@ import (
  */
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		// Affiche le formulaire logout via home.html
 		RenderTemplate(w, "home.html", nil)
 		return
 	}
-	cookie, err := r.Cookie("session_token")
-	if err == nil && cookie.Value != "" {
-		err := userService.Logout(cookie.Value)
-		if err != nil {
-			fmt.Println(err)
-		}
 
+	// Récupération des cookies
+	cookie, err := r.Cookie("session_token")
+	cookieStateGoogle, errStateGoogle := r.Cookie("state-Google")
+	cookieStateGithub, errStateGithub := r.Cookie("state-Github")
+
+	// Gestion du logout session standard
+	if err == nil && cookie != nil && cookie.Value != "" {
+		if err := userService.Logout(cookie.Value); err != nil {
+			fmt.Println("Error logging out session:", err)
+		}
 		http.SetCookie(w, &http.Cookie{
 			Name:    "session_token",
 			Value:   "",
+			Path:    "/",
 			Expires: time.Now().Add(-1 * time.Hour),
 		})
-	} else if err != nil || cookie == nil {
-		cookieState, errState := r.Cookie("state")
-		if errState == nil && cookieState.Value != "" {
-			err := userService.Logout(cookieState.Value)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			/*http.SetCookie(w, &http.Cookie{
-				Name:    "state",
-				Value:   "",
-				Expires: time.Now().Add(-1 * time.Hour),
-			})*/
-		}
-	} else {
-		fmt.Println(err)
 	}
+
+	// Gestion du logout Google
+	if errStateGoogle == nil && cookieStateGoogle != nil && cookieStateGoogle.Value != "" {
+		if err := userService.Logout(cookieStateGoogle.Value); err != nil {
+			fmt.Println("Error logging out Google:", err)
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:    "state-Google",
+			Value:   "",
+			Path:    "/",
+			Expires: time.Now().Add(-1 * time.Hour),
+		})
+	}
+
+	// Gestion du logout Github
+	if errStateGithub == nil && cookieStateGithub != nil && cookieStateGithub.Value != "" {
+		if err := userService.Logout(cookieStateGithub.Value); err != nil {
+			fmt.Println("Error logging out Github:", err)
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:    "state-Github",
+			Value:   "",
+			Path:    "/",
+			Expires: time.Now().Add(-1 * time.Hour),
+		})
+	}
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
