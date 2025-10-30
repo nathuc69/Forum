@@ -28,6 +28,7 @@ func (s *userService) Register(username, email, password string) error {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		fmt.Println("err ici ")
 		return err
 	}
 
@@ -67,6 +68,7 @@ func (s *userService) TokenLogIn(Token, email string) error {
 func (s *userService) Home(Token string) (*domain.User, error) {
 	user, err := s.repo.GetUserByToken(Token)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	return user, nil

@@ -65,9 +65,9 @@ func (r *userRepository) InsertToken(Token, email string) error {
 }
 
 func (r *userRepository) GetUserByToken(Token string) (*domain.User, error) {
-	row := r.db.QueryRow("SELECT id, username, email, password FROM users WHERE Token = ?", Token)
+	row := r.db.QueryRow("SELECT id, username FROM users WHERE Token = ?", Token)
 	user := &domain.User{}
-	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password)
+	err := row.Scan(&user.ID, &user.Username /*, &user.Email, &user.Password*/)
 	if err != nil {
 		return nil, err
 	}

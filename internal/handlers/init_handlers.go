@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"forum/internal/domain"
+	"forum/internal/middleware"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -14,13 +15,17 @@ var categoryService domain.CategoryService
 var reactionService domain.ReactionService
 var filterService domain.FilterService
 var templates *template.Template
+var authService domain.AuthService
+var middlewareService middleware.AuthMiddleware
 
-func InitHandlers(us domain.UserService, tps domain.TopicPostService, cs domain.CategoryService, rs domain.ReactionService, flt domain.FilterService) {
+func InitHandlers(us domain.UserService, tps domain.TopicPostService, cs domain.CategoryService, rs domain.ReactionService, flt domain.FilterService, auth domain.AuthService, mw middleware.AuthMiddleware) {
 	userService = us
 	topicPostService = tps
 	categoryService = cs
 	reactionService = rs
 	filterService = flt
+	authService = auth
+	middlewareService = mw
 
 	// Précharger tous les templates une seule fois
 	var err error

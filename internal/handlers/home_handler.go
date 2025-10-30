@@ -17,6 +17,13 @@ type Datas struct {
 /*var tpl = template.Must(template.ParseFiles("internal/templates/home.html"))*/
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := false
+	user, ok := r.Context().Value("user").(*domain.User)
+	if !ok || user == nil {
+		isLoggedIn = false
+	} else {
+		isLoggedIn = true
+	}
 
 	if r.URL.Path != "/" {
 		http.Error(w, "❌ not found", http.StatusNotFound)
@@ -45,17 +52,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("❌ error fetching categories:", err)
 		http.Error(w, "❌ error fetching categories", http.StatusInternalServerError)
 		return
-	}
-
-	cookie, err := r.Cookie("session_token")
-	var isLoggedIn bool
-
-	if err == nil {
-		// Vérifie si le token correspond à un utilisateur connecté
-		user, _ := userService.Home(cookie.Value)
-		if user != nil {
-			isLoggedIn = true
-		}
 	}
 
 	datas := Datas{
